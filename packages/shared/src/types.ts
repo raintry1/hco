@@ -70,6 +70,24 @@ export interface SearchResult {
   total: number;
 }
 
+export type UserRole = 'user' | 'admin';
+
+/**
+ * Profiles row, mirroring the Supabase `profiles` table (snake_case columns).
+ * id always equals auth.users.id. role is assigned server-side only — never
+ * from client-supplied data.
+ */
+export interface Profile {
+  id: string;
+  display_name: string;
+  username: string | null;
+  avatar_url: string | null;
+  bio: string;
+  role: UserRole;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface SiteConfig {
   name: string;
   description: string;
