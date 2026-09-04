@@ -68,9 +68,11 @@ export function CategoryCard({ category, variant = 'default' }: CategoryCardProp
                   {category.description}
                 </p>
               )}
-              <div className={cn('flex items-center gap-2 mt-2 text-sm text-muted-foreground', isCompact && 'mt-1')}>
-                <span>{category.postCount || 0} posts</span>
-              </div>
+              {category.postCount !== undefined && (
+                <div className={cn('flex items-center gap-2 mt-2 text-sm text-muted-foreground', isCompact && 'mt-1')}>
+                  <span>{category.postCount} posts</span>
+                </div>
+              )}
             </div>
           </div>
         </CardContent>

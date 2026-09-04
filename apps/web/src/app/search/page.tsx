@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { Search, X, Filter, Loader2 } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
-import { searchPosts, posts } from '@/data/mock-data';
+import type { PostWithRelations } from '@hco/shared';
+import { getPosts, searchInPosts } from '@/lib/api';
 import { BlogCard, CompactPostCard } from '@/components/cards/blog-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,7 +15,8 @@ import { siteConfig } from '@/lib/site-config';
 
 export default function SearchPage() {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<typeof posts>([]);
+  const [results, setResults] = useState<PostWithRelations[]>([]);
+  const [allPosts, setAllPosts] = useState<PostWithRelations[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -23,7 +25,7 @@ export default function SearchPage() {
   const performSearch = useCallback((q: string) => {
     setIsSearching(true);
     setTimeout(() => {
-      let searchResults = searchPosts(q);
+      let searchResults = searchInPosts(allPosts, q);
       
       if (selectedCategory) {
         searchResults = searchResults.filter(p => p.category.slug === selectedCategory);
@@ -35,7 +37,19 @@ export default function SearchPage() {
       setResults(searchResults);
       setIsSearching(false);
     }, 150);
-  }, [selectedCategory, selectedTag]);
+  }, [selectedCategory, selectedTag, allPosts]);
+
+  // Load the published post list once through the content gateway (mock or
+  // live depending on NEXT_PUBLIC_USE_MOCK_DATA).
+  useEffect(() => {
+    let active = true;
+    getPosts().then((data) => {
+      if (active) setAllPosts(data);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     performSearch(query);
@@ -46,8 +60,8 @@ export default function SearchPage() {
     setResults([]);
   };
 
-  const allTags = Array.from(new Set(posts.flatMap(p => p.tags.map(t => t.name))));
-  const allCategories = Array.from(new Set(posts.map(p => p.category.name)));
+  const allTags = Array.from(new Set(allPosts.flatMap(p => p.tags.map(t => t.name))));
+  const allCategories = Array.from(new Set(allPosts.map(p => p.category.name)));
 
   return (
     <div className="min-h-screen">

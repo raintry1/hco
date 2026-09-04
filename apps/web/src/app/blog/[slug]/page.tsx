@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Calendar, Clock, Eye, User, Tag, ChevronLeft, ArrowUpRight } from 'lucide-react';
-import { getPostBySlug, getRelatedPosts, posts as allPosts } from '@/data/mock-data';
+import { getPostBySlug, getRelatedPosts, getPosts } from '@/lib/api';
 import { ArticleContent } from '@/components/blog/article-content';
 import { ShareButtons } from '@/components/blog/share-buttons';
 import { Button } from '@/components/ui/button';
@@ -20,7 +20,7 @@ interface BlogPostPageProps {
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlug(slug);
 
   if (!post) {
     return { title: 'Post Not Found' };
@@ -55,13 +55,14 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   };
 }
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const allPosts = await getPosts();
   return allPosts.map((post) => ({ slug: post.slug }));
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlug(slug);
 
   if (!post) {
     notFound();
@@ -72,7 +73,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     notFound();
   }
 
-  const relatedPosts = getRelatedPosts(post.id, 3);
+  const relatedPosts = await getRelatedPosts(post.id, 3);
 
   const canonicalUrl = `${siteConfig.url}/blog/${post.slug}`;
 

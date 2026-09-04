@@ -2,7 +2,8 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronLeft, Filter, Grid, List } from 'lucide-react';
-import { getPostsByCategory, categories } from '@/data/mock-data';
+import { getPostsByCategory, getCategories } from '@/lib/api';
+import { CategorySortSelect } from './category-sort-select';
 import { BlogCard } from '@/components/cards/blog-card';
 import { CategoryCard } from '@/components/cards/category-card';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ interface CategoryPageProps {
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params;
+  const categories = await getCategories();
   const category = categories.find(c => c.slug === slug);
 
   if (!category) {
@@ -34,19 +36,21 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 }
 
 export async function generateStaticParams() {
+  const categories = await getCategories();
   return categories.map((category) => ({ slug: category.slug }));
 }
 
 export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
   const { slug } = await params;
   const { sort = 'latest', page = '1' } = await searchParams;
+  const categories = await getCategories();
   const category = categories.find(c => c.slug === slug);
 
   if (!category) {
     notFound();
   }
 
-  let posts = getPostsByCategory(slug);
+  const posts = await getPostsByCategory(slug);
 
   switch (sort) {
     case 'popular':
@@ -115,16 +119,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
           <div className="flex items-center gap-2">
             <label htmlFor="sort" className="sr-only">Sort posts</label>
-            <select
-              id="sort"
-              value={sort}
-              onChange={(e) => window.location.search = `?sort=${e.target.value}`}
-              className="px-3 py-2 border rounded-md bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <option value="latest">Latest First</option>
-              <option value="popular">Most Popular</option>
-              <option value="oldest">Oldest First</option>
-            </select>
+            <CategorySortSelect sort={sort} />
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="icon" aria-label="Grid view">

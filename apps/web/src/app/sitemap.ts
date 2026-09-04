@@ -1,8 +1,10 @@
 import { MetadataRoute } from 'next';
 import { siteConfig } from '@/lib/site-config';
-import { posts, categories } from '@/data/mock-data';
+import { getPosts, getCategories } from '@/lib/api';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const posts = await getPosts();
+  const categories = await getCategories();
   const baseUrl = siteConfig.url;
   const staticRoutes = [
     '',

@@ -2,8 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, BookOpen, Users, Shield, Code, Globe, Lock, Cpu, Bug, Server, Briefcase, Mail, ChevronRight, Flame, TrendingUp } from 'lucide-react';
-import { getFeaturedPosts, getLatestPosts, getTrendingPosts } from '@/data/mock-data';
-import { categories } from '@/data/mock-data';
+import { getFeaturedPosts, getLatestPosts, getTrendingPosts, getCategories } from '@/lib/api';
 import { BlogCard, FeaturedPostCard } from '@/components/cards/blog-card';
 import { CategoryCard } from '@/components/cards/category-card';
 import { Button } from '@/components/ui/button';
@@ -32,10 +31,11 @@ const categoryIcons: Record<string, React.ReactNode> = {
   'career': <Briefcase className="h-5 w-5" />,
 };
 
-export default function HomePage() {
-  const featuredPosts = getFeaturedPosts();
-  const latestPosts = getLatestPosts(6);
-  const trendingPosts = getTrendingPosts().slice(0, 5);
+export default async function HomePage() {
+  const featuredPosts = await getFeaturedPosts();
+  const latestPosts = await getLatestPosts(6);
+  const trendingPosts = (await getTrendingPosts()).slice(0, 5);
+  const categories = await getCategories();
 
   return (
     <div className="flex flex-col">
