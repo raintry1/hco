@@ -1,0 +1,14 @@
+# Hackers Colony Official - robots.txt
+User-agent: *
+Allow: /
+
+# Disallow admin and API routes
+Disallow: /api/
+Disallow: /admin/
+Disallow: /login
+Disallow: /profile
+Disallow: /_next/
+Disallow: /*.json$
+
+# Sitemap
+Sitemap: https://hco.dev/sitemap.xml
