@@ -43,17 +43,18 @@ export function MainNav() {
   );
 }
 
-export function MobileNav() {
+export function MobileNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
 
   return (
-    <nav className="flex flex-col gap-2" role="navigation" aria-label="Mobile navigation">
+    <nav className="flex flex-col gap-1" role="navigation" aria-label="Mobile navigation">
       {siteConfig.navItems.map((item) => (
         <Link
           key={item.href}
           href={item.href}
+          onClick={onNavigate}
           className={cn(
-            'px-3 py-2 rounded-md text-sm font-medium transition-colors',
+            'block w-full px-4 py-3 rounded-md text-base font-medium transition-colors',
             'hover:bg-accent hover:text-accent-foreground',
             pathname === item.href
               ? 'bg-accent text-accent-foreground'
@@ -68,7 +69,7 @@ export function MobileNav() {
   );
 }
 
-export function AuthButtons() {
+export function AuthButtons({ onNavigate }: { onNavigate?: () => void }) {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -105,6 +106,7 @@ export function AuthButtons() {
       const supabase = createClient();
       await supabase.auth.signOut();
     } finally {
+      onNavigate?.();
       router.refresh();
     }
   };
@@ -121,10 +123,10 @@ export function AuthButtons() {
   if (!user) {
     return (
       <div className="flex items-center gap-2">
-        <Link href="/login">
+        <Link href="/login" onClick={onNavigate}>
           <Button variant="ghost" size="sm">Sign In</Button>
         </Link>
-        <Link href="/login">
+        <Link href="/login" onClick={onNavigate}>
           <Button size="sm">Join</Button>
         </Link>
       </div>
@@ -159,10 +161,10 @@ export function AuthButtons() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
+        <DropdownMenuItem onSelect={onNavigate} asChild>
           <Link href="/profile">Profile</Link>
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => { void handleSignOut(); }}>Sign Out</DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => { onNavigate?.(); void handleSignOut(); }}>Sign Out</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

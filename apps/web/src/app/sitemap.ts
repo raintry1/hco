@@ -4,7 +4,7 @@ import { getPosts, getCategories } from '@/lib/api';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const posts = await getPosts();
-  const categories = await getCategories();
+  const categories = (await getCategories()) ?? [];
   const baseUrl = siteConfig.url;
   const staticRoutes = [
     '',

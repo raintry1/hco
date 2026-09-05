@@ -35,7 +35,7 @@ export default async function HomePage() {
   const featuredPosts = await getFeaturedPosts();
   const latestPosts = await getLatestPosts(6);
   const trendingPosts = (await getTrendingPosts()).slice(0, 5);
-  const categories = await getCategories();
+  const categories = (await getCategories()) ?? [];
 
   return (
     <div className="flex flex-col">

@@ -2,9 +2,10 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Calendar, Clock, Eye, User, Tag, ChevronLeft, ArrowUpRight } from 'lucide-react';
+import { Calendar, Clock, User, Tag, ChevronLeft, ArrowUpRight } from 'lucide-react';
 import { getPostBySlug, getRelatedPosts, getPosts } from '@/lib/api';
 import { ArticleContent } from '@/components/blog/article-content';
+import { PostViewCounter } from '@/components/blog/post-view-counter';
 import { ShareButtons } from '@/components/blog/share-buttons';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -173,10 +174,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   <Clock className="h-4 w-4" aria-hidden="true" />
                   {post.readingTime} min read
                 </span>
-                <span className="flex items-center gap-1">
-                  <Eye className="h-4 w-4" aria-hidden="true" />
-                  {post.viewCount.toLocaleString()} views
-                </span>
+                <PostViewCounter postId={post.id} initialCount={post.viewCount} />
               </div>
             </div>
 

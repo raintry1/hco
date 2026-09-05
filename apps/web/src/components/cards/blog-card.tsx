@@ -33,12 +33,17 @@ export function BlogCard({
   const isTrending = variant === 'trending';
 
   return (
-    <article className={cn('flex flex-col', isFeatured && 'h-full')}>
+    <article
+      className={cn(
+        'group relative flex flex-col overflow-hidden rounded-lg border bg-card shadow-sm transition-colors hover:border-primary/40',
+        isFeatured && 'h-full'
+      )}
+    >
       {post.coverImage && (
         <Link
           href={`/blog/${post.slug}`}
           className={cn(
-            'relative overflow-hidden rounded-t-lg',
+            'relative z-[1] overflow-hidden rounded-t-lg',
             isFeatured ? 'aspect-video' : 'aspect-[4/3]'
           )}
           aria-label={`Read "${post.title}"`}
@@ -47,7 +52,7 @@ export function BlogCard({
             src={post.coverImage}
             alt=""
             fill
-            className="object-cover transition-transform duration-300 hover:scale-105"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
             sizes={isFeatured ? '(max-width: 768px) 100vw, 50vw' : '(max-width: 768px) 100vw, 33vw'}
             loading={isFeatured ? 'eager' : 'lazy'}
           />
@@ -75,7 +80,7 @@ export function BlogCard({
           {showCategory && (
             <Link
               href={`/categories/${post.category.slug}`}
-              className="text-xs font-medium px-2 py-0.5 rounded"
+              className="relative z-[1] text-xs font-medium px-2 py-0.5 rounded"
               style={{
                 backgroundColor: `${post.category.color}20`,
                 color: post.category.color,
@@ -91,7 +96,14 @@ export function BlogCard({
           )}
         </div>
 
-        <Link href={`/blog/${post.slug}`} className="group">
+        {/* The title link's stretched ::after makes the entire card body a
+            single hit target for /blog/{slug} without nesting anchors. The
+            category / author links above it are raised so they stay
+            clickable. */}
+        <Link
+          href={`/blog/${post.slug}`}
+          className="after:absolute after:inset-0 after:content-[''] after:cursor-pointer"
+        >
           <h2
             className={cn(
               'font-semibold leading-tight transition-colors group-hover:text-primary',
@@ -111,7 +123,10 @@ export function BlogCard({
 
         {showAuthor && (
           <div className="mt-auto flex items-center gap-3 pt-4 border-t">
-            <Link href={`/author/${post.author.slug}`} className="flex items-center gap-2">
+            <Link
+              href={`/author/${post.author.slug}`}
+              className="relative z-[1] flex items-center gap-2"
+            >
               <Avatar className="h-8 w-8">
                 {post.author.avatar ? (
                   <AvatarImage src={post.author.avatar} alt="" />

@@ -2,66 +2,97 @@
 
 import Link from 'next/link';
 import { Search, X, Filter, Loader2 } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import type { PostWithRelations } from '@hco/shared';
-import { getPosts, searchInPosts } from '@/lib/api';
-import { BlogCard, CompactPostCard } from '@/components/cards/blog-card';
+import { searchInPosts } from '@/lib/api';
+import { BlogCard } from '@/components/cards/blog-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { siteConfig } from '@/lib/site-config';
 
 export default function SearchPage() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<PostWithRelations[]>([]);
   const [allPosts, setAllPosts] = useState<PostWithRelations[]>([]);
+  const [isFetching, setIsFetching] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
-  const performSearch = useCallback((q: string) => {
+  // Debounced search over the loaded posts. Filters match the slug-based
+  // option values against each post's category slug and tag slugs — never
+  // against tagIds, which are numeric ids (mock) or UUIDs (live) and would
+  // never equal a slugified tag name.
+  useEffect(() => {
     setIsSearching(true);
-    setTimeout(() => {
-      let searchResults = searchInPosts(allPosts, q);
-      
+
+    const timer = setTimeout(() => {
+      let searchResults = searchInPosts(allPosts, query);
+
       if (selectedCategory) {
         searchResults = searchResults.filter(p => p.category.slug === selectedCategory);
       }
       if (selectedTag) {
-        searchResults = searchResults.filter(p => p.tagIds.includes(selectedTag));
+        searchResults = searchResults.filter(p => p.tags.some(t => t.slug === selectedTag));
       }
-      
+
       setResults(searchResults);
       setIsSearching(false);
     }, 150);
-  }, [selectedCategory, selectedTag, allPosts]);
 
-  // Load the published post list once through the content gateway (mock or
-  // live depending on NEXT_PUBLIC_USE_MOCK_DATA).
+    return () => clearTimeout(timer);
+  }, [query, selectedCategory, selectedTag, allPosts]);
+
+  // Load the published post list through the site's same-origin content
+  // bridge (/api/content/posts), which fetches the Express API server-side
+  // through the shared content gateway. The browser must not call the API
+  // directly: NEXT_PUBLIC_API_URL is the server's view (e.g.
+  // http://localhost:4040) and is unreachable from remote visitors.
   useEffect(() => {
     let active = true;
-    getPosts().then((data) => {
-      if (active) setAllPosts(data);
-    });
+
+    (async () => {
+      let posts: PostWithRelations[] = [];
+      try {
+        const res = await fetch('/api/content/posts', {
+          headers: { Accept: 'application/json' },
+        });
+        if (res.ok) {
+          const json: unknown = await res.json();
+          if (Array.isArray(json)) {
+            posts = json as PostWithRelations[];
+          }
+        }
+      } catch {
+        posts = [];
+      }
+      if (active) {
+        setAllPosts(posts);
+        setIsFetching(false);
+      }
+    })();
+
     return () => {
       active = false;
     };
   }, []);
 
-  useEffect(() => {
-    performSearch(query);
-  }, [query, performSearch]);
-
   const clearSearch = () => {
     setQuery('');
-    setResults([]);
+    setSelectedCategory(null);
+    setSelectedTag(null);
   };
 
-  const allTags = Array.from(new Set(allPosts.flatMap(p => p.tags.map(t => t.name))));
-  const allCategories = Array.from(new Set(allPosts.map(p => p.category.name)));
+  // Filter options keyed by slug (the value submitted to the filter) and
+  // labelled with the display name from the loaded posts.
+  const categoryOptions = Array.from(
+    new Map(allPosts.map(p => [p.category.slug, p.category.name])).entries()
+  );
+  const tagOptions = Array.from(
+    new Map(allPosts.flatMap(p => p.tags.map(t => [t.slug, t.name]))).entries()
+  ).slice(0, 20);
 
   return (
     <div className="min-h-screen">
@@ -128,8 +159,8 @@ export default function SearchPage() {
                         aria-label="Filter by category"
                       >
                         <option value="">All Categories</option>
-                        {allCategories.map(cat => (
-                          <option key={cat} value={cat.toLowerCase().replace(/\s+/g, '-')}>{cat}</option>
+                        {categoryOptions.map(([slug, name]) => (
+                          <option key={slug} value={slug}>{name}</option>
                         ))}
                       </select>
                     </div>
@@ -142,8 +173,8 @@ export default function SearchPage() {
                         aria-label="Filter by tag"
                       >
                         <option value="">All Tags</option>
-                        {allTags.slice(0, 20).map(tag => (
-                          <option key={tag} value={tag.toLowerCase().replace(/\s+/g, '-')}>{tag}</option>
+                        {tagOptions.map(([slug, name]) => (
+                          <option key={slug} value={slug}>{name}</option>
                         ))}
                       </select>
                     </div>
@@ -160,12 +191,59 @@ export default function SearchPage() {
 
       {/* Search Results */}
       <div className="container-narrow py-12">
-        {isSearching ? (
+        {isFetching || isSearching ? (
           <div className="flex items-center justify-center py-16" role="status" aria-live="polite">
             <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
             <span className="sr-only">Searching...</span>
           </div>
-        ) : query === '' ? (
+        ) : results.length > 0 ? (
+          <>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-12">
+              {results.map((post) => (
+                <BlogCard key={post.id} post={post} />
+              ))}
+            </div>
+
+            {query !== '' && (
+              <>
+                {/* Related Searches */}
+                <Separator className="mb-8" />
+                <h2 className="text-xl font-semibold mb-4">Related Searches</h2>
+                <div className="flex flex-wrap gap-2">
+                  {['security', 'vulnerability', 'tutorial', 'career', 'tools', 'CTF'].map((term) => (
+                    <Button
+                      key={term}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setQuery(term)}
+                    >
+                      {term}
+                    </Button>
+                  ))}
+                </div>
+              </>
+            )}
+          </>
+        ) : query !== '' ? (
+          <div className="text-center py-16">
+            <svg className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+              <circle cx="11" cy="11" r="8" />
+              <path d="M21 21l-4.35-4.35" />
+            </svg>
+            <h2 className="text-xl font-semibold mb-2">No results found</h2>
+            <p className="text-muted-foreground mb-6">
+              We couldn&apos;t find any articles matching &ldquo;{query}&rdquo;.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <Button variant="outline" onClick={() => setQuery('')}>
+                Clear search
+              </Button>
+              <Button variant="outline" onClick={() => setQuery(query.split(' ')[0])}>
+                Try: {query.split(' ')[0]}
+              </Button>
+            </div>
+          </div>
+        ) : (
           <div className="text-center py-16">
             <Search className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" aria-hidden="true" />
             <h2 className="text-xl font-semibold mb-2">Search articles, authors, and topics</h2>
@@ -209,49 +287,6 @@ export default function SearchPage() {
               </div>
             </div>
           </div>
-        ) : results.length === 0 ? (
-          <div className="text-center py-16">
-            <svg className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-              <circle cx="11" cy="11" r="8" />
-              <path d="M21 21l-4.35-4.35" />
-            </svg>
-            <h2 className="text-xl font-semibold mb-2">No results found</h2>
-            <p className="text-muted-foreground mb-6">
-              We couldn&apos;t find any articles matching &ldquo;{query}&rdquo;.
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              <Button variant="outline" onClick={() => setQuery('')}>
-                Clear search
-              </Button>
-              <Button variant="outline" onClick={() => setQuery(query.split(' ')[0])}>
-                Try: {query.split(' ')[0]}
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-12">
-              {results.map((post) => (
-                <BlogCard key={post.id} post={post} />
-              ))}
-            </div>
-
-            {/* Related Searches */}
-            <Separator className="mb-8" />
-            <h2 className="text-xl font-semibold mb-4">Related Searches</h2>
-            <div className="flex flex-wrap gap-2">
-              {['security', 'vulnerability', 'tutorial', 'career', 'tools', 'CTF'].map((term) => (
-                <Button
-                  key={term}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setQuery(term)}
-                >
-                  {term}
-                </Button>
-              ))}
-            </div>
-          </>
         )}
       </div>
     </div>

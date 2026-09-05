@@ -70,7 +70,7 @@ export default async function AdminPostsPage() {
                           )}
                         </div>
                         <Link
-                          href={`/admin/posts/${post.id}/edit`}
+                          href={`/blog/${post.slug}`}
                           className="text-lg font-semibold hover:text-primary transition-colors line-clamp-1"
                         >
                           {post.title}

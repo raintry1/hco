@@ -204,10 +204,14 @@ function mapPost(row: PostRow): PostWithRelations {
 
 // ---- Sources: mock (default) or live API --------------------------------
 
-async function getCategoriesSource(): Promise<Category[]> {
+async function getCategoriesSource(): Promise<Category[] | null> {
   if (USE_MOCK_DATA) return mockCategories;
   const rows = await fetchJson<CategoryRow>('/categories');
-  return (rows ?? []).map(mapCategory);
+  // Preserve null (API unavailable / errored) so callers can distinguish
+  // "couldn't load the taxonomy" from "there are no categories" — the
+  // category page must degrade instead of treating an API outage as an
+  // empty dataset (which would make every valid category look "not found").
+  return rows ? rows.map(mapCategory) : null;
 }
 
 async function getTagsSource(): Promise<Tag[]> {
@@ -250,8 +254,14 @@ export function searchInPosts(
 
 // ---- Public gateway API --------------------------------------------------
 
-/** All categories (mock: with postCount; live: without). Never throws. */
-export async function getCategories(): Promise<Category[]> {
+/**
+ * All categories (mock: with postCount; live: without). Never throws.
+ * Returns null only in live mode when the API is unreachable or errored, so
+ * callers can tell "couldn't load" apart from "no categories exist". Use
+ * `?? []` where an empty dataset is the correct degradation; use the null
+ * check where a missing taxonomy must NOT look like an empty one.
+ */
+export async function getCategories(): Promise<Category[] | null> {
   return getCategoriesSource();
 }
 

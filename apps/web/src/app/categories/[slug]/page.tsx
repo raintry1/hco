@@ -15,9 +15,24 @@ interface CategoryPageProps {
   searchParams: Promise<{ sort?: string; page?: string }>;
 }
 
+// This route reads searchParams (sort/page), which is incompatible with static
+// generation: an SSG/ISR category route throws DYNAMIC_SERVER_USAGE whenever it
+// renders on demand (e.g. a slug absent from generateStaticParams, or a build
+// made while the API was down), and pre-rendered HTML can't honor ?sort=.
+// Force server-side rendering so the page always renders correctly and can
+// degrade gracefully when the API is unavailable.
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params;
   const categories = await getCategories();
+
+  // Taxonomy unreachable — degrade with a neutral title (the page itself
+  // renders a friendly state; it does not 404 valid categories).
+  if (categories === null) {
+    return { title: 'Categories' };
+  }
+
   const category = categories.find(c => c.slug === slug);
 
   if (!category) {
@@ -32,20 +47,34 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
       description: category.description || `Browse all articles in ${category.name}`,
       type: 'website',
     },
-  };
-}
-
-export async function generateStaticParams() {
-  const categories = await getCategories();
-  return categories.map((category) => ({ slug: category.slug }));
-}
+  };}
 
 export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
   const { slug } = await params;
   const { sort = 'latest', page = '1' } = await searchParams;
   const categories = await getCategories();
-  const category = categories.find(c => c.slug === slug);
 
+  // API unavailable (taxonomy could not be loaded) -> degrade with a friendly
+  // state instead of 404-ing every valid category. This is the documented
+  // gateway failure contract: an outage means empty/degraded content, never
+  // "not found" for content that exists.
+  if (categories === null) {
+    return (
+      <div className="min-h-screen">
+        <div className="container-narrow py-24 text-center">
+          <h1 className="text-2xl font-bold mb-3">Category unavailable</h1>
+          <p className="text-muted-foreground max-w-md mx-auto">
+            We couldn&apos;t load this category right now. Please try again in
+            a moment.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Taxonomy loaded: an unknown slug is genuinely not found. A valid category
+  // renders even with zero published posts — the grid below simply stays empty.
+  const category = categories.find(c => c.slug === slug);
   if (!category) {
     notFound();
   }
