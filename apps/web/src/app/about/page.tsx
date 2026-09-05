@@ -18,10 +18,11 @@ const values = [
 ];
 
 const team = [
-  { name: 'Alex Chen', role: 'Founder & Security Researcher', bio: 'Former red teamer, bug bounty hunter, and open source contributor.', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=alex' },
-  { name: 'Maria Rodriguez', role: 'Cryptography Lead', bio: 'PhD in Cryptography. ZK-proof researcher and privacy advocate.', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=maria' },
-  { name: 'James Park', role: 'Malware Analysis Lead', bio: 'Reverse engineer, DEF CON speaker, and CTF enthusiast.', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=james' },
-  { name: 'Sarah Kim', role: 'DevSecOps Lead', bio: 'Kubernetes security specialist, CNCF contributor, pipeline builder.', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sarah' },
+  {
+    name: 'Azhar',
+    role: 'Certified Ethical Hacker (CEH)',
+    bio: 'Focused on web and application security, vulnerability research, penetration testing, and practical security analysis.',
+  },
 ];
 
 export default function AboutPage() {
@@ -165,13 +166,14 @@ export default function AboutPage() {
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {team.map((member) => (
-              <Card key={member.name} className="text-center">
+              <Card key={member.name} className="text-center max-w-sm mx-auto w-full">
                 <CardContent className="p-6">
-                  <img
-                    src={member.avatar}
-                    alt={member.name}
-                    className="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-primary/20"
-                  />
+                  <div
+                    className="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-primary/20 bg-primary/10 text-primary flex items-center justify-center text-xl font-semibold"
+                    aria-hidden="true"
+                  >
+                    {member.name.slice(0, 2).toUpperCase()}
+                  </div>
                   <h3 className="font-semibold">{member.name}</h3>
                   <p className="text-sm text-primary mb-2">{member.role}</p>
                   <p className="text-sm text-muted-foreground">{member.bio}</p>

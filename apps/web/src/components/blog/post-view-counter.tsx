@@ -9,14 +9,15 @@ interface PostViewCounterProps {
 }
 
 /**
- * Displays a post's view count and records exactly one view per page visit.
+ * Displays a post's view count and asks the server to record the current
+ * authenticated user or anonymous cookie identity.
  *
- * - Fires once per mounted visit (useRef guard): React re-renders and the
- *   StrictMode double-mount can never trigger a second request.
- * - A fresh page load, refresh, or navigate-away-and-back creates a new
- *   component instance, so each of those counts as another visit.
- * - The displayed count is updated to the real value returned by the
- *   server-side increment (never faked locally).
+ * - Fires once per component mount and prevents duplicate requests from
+ *   re-renders. If development StrictMode remounts it, the server/database
+ *   still deduplicates the repeated identity.
+ * - The server/database deduplicates repeated visits for the same identity.
+ * - The displayed count is updated to the real value returned by the server
+ *   (never faked locally).
  * - On failure the article still renders: the count simply stays at the
  *   server-rendered value and the error is logged, not thrown.
  */
