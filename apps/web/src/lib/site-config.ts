@@ -1,8 +1,15 @@
+// The site's public base URL, used for metadataBase, canonical URLs, Open
+// Graph, sitemap, and JSON-LD. Override per environment with
+// NEXT_PUBLIC_SITE_URL (e.g. http://localhost:3000 locally,
+// https://hackerscolony.vercel.app in production).
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL || 'https://hackerscolony.vercel.app';
+
 export const siteConfig = {
   name: 'Hackers Colony Official',
   shortName: 'HCO',
   description: 'Learn. Hack. Build. Grow Together. A community-driven platform for developers and cybersecurity enthusiasts.',
-  url: 'https://hco.dev',
+  url: siteUrl,
   ogImage: '/og-image.png',
   twitterHandle: '@hackerscolony',
   links: {

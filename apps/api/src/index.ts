@@ -4,9 +4,40 @@ import cors from 'cors';
 import { getSupabase } from './supabase';
 
 const app: Application = express();
+// Render assigns PORT automatically; fall back to 4040 only for local dev.
 const PORT = process.env.PORT || 4040;
 
-app.use(cors());
+// CORS allowlist. Server-to-server requests (the Next.js gateway, health
+// checks, curl) carry no Origin header and are always allowed. Browser
+// requests must come from a known frontend origin: localhost for local
+// development, plus FRONTEND_URL / CORS_ORIGINS for deployed frontends
+// (e.g. FRONTEND_URL=https://hackerscolony.vercel.app on Render).
+const LOCAL_DEV_ORIGINS = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://0.0.0.0:3000',
+];
+const envOrigins = (process.env.CORS_ORIGINS ?? '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+const allowedOrigins = Array.from(
+  new Set([
+    ...LOCAL_DEV_ORIGINS,
+    ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
+    ...envOrigins,
+  ])
+);
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      // No Origin header: non-browser / same-server request — allow.
+      if (!origin) return callback(null, true);
+      callback(null, allowedOrigins.includes(origin));
+    },
+  })
+);
 app.use(express.json());
 
 // ---------------------------------------------------------------------------
