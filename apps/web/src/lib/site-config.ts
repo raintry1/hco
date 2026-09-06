@@ -22,9 +22,10 @@ export const siteConfig = {
   navItems: [
     { label: 'Home', href: '/' },
     { label: 'Blog', href: '/blog' },
-    { label: 'Categories', href: '/categories' },
-    { label: 'Search', href: '/search' },
+    { label: 'Nova AI', href: '/ai' },
+    { label: 'Bolt Bot', href: '/chat' },
     { label: 'About', href: '/about' },
+    { label: 'Contact', href: '/contact' },
   ],
 };
 

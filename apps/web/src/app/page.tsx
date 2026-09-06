@@ -1,18 +1,12 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
-import { ArrowRight, BookOpen, Users, Shield, Code, Globe, Lock, Cpu, Bug, Server, Briefcase, Mail, ChevronRight, Flame, TrendingUp } from 'lucide-react';
-import { getFeaturedPosts, getLatestPosts, getTrendingPosts, getCategories } from '@/lib/api';
-import { BlogCard, FeaturedPostCard } from '@/components/cards/blog-card';
-import { CategoryCard } from '@/components/cards/category-card';
+import { ArrowRight, Users, Sparkles, Zap, Newspaper, Mail, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { siteConfig } from '@/lib/site-config';
 
 export const metadata: Metadata = {
   title: 'Learn. Hack. Build. Grow Together.',
-  description: 'Hackers Colony Official - A community-driven platform for developers and cybersecurity enthusiasts. Discover the latest in web security, cryptography, reverse engineering, and more.',
+  description: 'Hackers Colony Official - A community-driven platform for developers and cybersecurity enthusiasts. AI guidance, video tutorials, and deep-dive security articles.',
   openGraph: {
     title: 'Hackers Colony Official',
     description: 'Learn. Hack. Build. Grow Together.',
@@ -20,23 +14,38 @@ export const metadata: Metadata = {
   },
 };
 
-const categoryIcons: Record<string, React.ReactNode> = {
-  'web-security': <Shield className="h-5 w-5" />,
-  'network-security': <Globe className="h-5 w-5" />,
-  'cryptography': <Lock className="h-5 w-5" />,
-  'reverse-engineering': <Cpu className="h-5 w-5" />,
-  'malware-analysis': <Bug className="h-5 w-5" />,
-  'devops-security': <Server className="h-5 w-5" />,
-  'programming': <Code className="h-5 w-5" />,
-  'career': <Briefcase className="h-5 w-5" />,
-};
+const features = [
+  {
+    icon: Sparkles,
+    title: 'Nova AI',
+    description: 'Ask anything about cybersecurity, Termux, or tech — Hinglish, Hindi or English.',
+    href: '/ai',
+    cta: 'Chat with Nova AI',
+  },
+  {
+    icon: Zap,
+    title: 'Bolt Video Bot',
+    description: '80+ video tutorials and Termux commands. Type “menu” and learn.',
+    href: '/chat',
+    cta: 'Open Bolt Bot',
+  },
+  {
+    icon: Newspaper,
+    title: 'HCO Blog',
+    description: 'Deep-dive articles on web security, crypto, reverse engineering and more.',
+    href: '/blog',
+    cta: 'Read articles',
+  },
+  {
+    icon: Users,
+    title: 'Community',
+    description: 'Join researchers and enthusiasts. Contact the team, join Discord.',
+    href: '/contact',
+    cta: 'Get in touch',
+  },
+];
 
 export default async function HomePage() {
-  const featuredPosts = await getFeaturedPosts();
-  const latestPosts = await getLatestPosts(6);
-  const trendingPosts = (await getTrendingPosts()).slice(0, 5);
-  const categories = (await getCategories()) ?? [];
-
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -48,7 +57,7 @@ export default async function HomePage() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
               </span>
-              Now accepting article submissions
+              Community-driven since 2023
             </div>
             <h1
               id="hero-heading"
@@ -62,7 +71,7 @@ export default async function HomePage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href="/blog">
                 <Button size="lg" className="gap-2 w-full sm:w-auto">
-                  Browse Articles
+                  Explore Blog
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Button>
               </Link>
@@ -98,102 +107,31 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Featured Article */}
-      {featuredPosts.length > 0 && (
-        <section className="py-16 lg:py-24" aria-labelledby="featured-heading">
-          <div className="container-narrow">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2 id="featured-heading" className="text-3xl font-bold">Featured Article</h2>
-                <p className="text-muted-foreground mt-1">Hand-picked by our editors</p>
-              </div>
-              <Link href="/blog" className="text-primary hover:underline text-sm font-medium">
-                View all →
-              </Link>
-            </div>
-            <FeaturedPostCard post={featuredPosts[0]} />
-          </div>
-        </section>
-      )}
-
-      {/* Latest Posts */}
-      <section className="py-16 lg:py-24" aria-labelledby="latest-heading">
+      {/* Features */}
+      <section className="py-16 lg:py-24 bg-muted/30" aria-labelledby="features-heading">
         <div className="container-narrow">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 id="latest-heading" className="text-3xl font-bold">Latest Posts</h2>
-              <p className="text-muted-foreground mt-1">Fresh content from the community</p>
-            </div>
-            <Link href="/blog" className="text-primary hover:underline text-sm font-medium">
-              View all →
-            </Link>
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <h2 id="features-heading" className="text-3xl font-bold">Explore the Colony</h2>
+            <p className="text-muted-foreground mt-2">AI guidance, video tutorials, articles and community — everything in one place.</p>
           </div>
-          <BlogCardGrid posts={latestPosts} />
-        </div>
-      </section>
-
-      {/* Categories */}
-      <section className="py-16 lg:py-24 bg-muted/30" aria-labelledby="categories-heading">
-        <div className="container-narrow">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 id="categories-heading" className="text-3xl font-bold">Browse Categories</h2>
-              <p className="text-muted-foreground mt-1">Explore topics that interest you</p>
-            </div>
-            <Link href="/categories" className="text-primary hover:underline text-sm font-medium">
-              View all →
-            </Link>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {categories.map((category) => (
-              <CategoryCard key={category.id} category={category} />
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {features.map((f) => (
+              <Card key={f.href} className="h-full hover:border-primary/50 transition-colors group">
+                <CardContent className="p-6 flex flex-col h-full">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                    <f.icon className="h-6 w-6 text-primary" aria-hidden="true" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">{f.title}</h3>
+                  <p className="text-muted-foreground flex-1">{f.description}</p>
+                  <Link href={f.href} className="text-primary hover:underline text-sm font-medium mt-4">
+                    {f.cta} →
+                  </Link>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
       </section>
-
-      {/* Trending Posts */}
-      {trendingPosts.length > 0 && (
-        <section className="py-16 lg:py-24" aria-labelledby="trending-heading">
-          <div className="container-narrow">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2 id="trending-heading" className="text-3xl font-bold flex items-center gap-2">
-                  <Flame className="h-7 w-7 text-primary" aria-hidden="true" />
-                  Trending
-                </h2>
-                <p className="text-muted-foreground mt-1">Most popular this week</p>
-              </div>
-            </div>
-            <div className="space-y-4">
-              {trendingPosts.map((post, index) => (
-                <article key={post.id} className="flex gap-4 p-4 rounded-lg bg-card border hover:border-primary/50 transition-colors group">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-sm font-bold text-primary flex-shrink-0">
-                    #{index + 1}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <Link href={`/blog/${post.slug}`} className="group">
-                      <h3 className="font-semibold group-hover:text-primary transition-colors">
-                        {post.title}
-                      </h3>
-                    </Link>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />
-                        {post.readingTime} min
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />
-                        {post.viewCount.toLocaleString()} views
-                      </span>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Newsletter Section */}
       <section className="py-16 lg:py-24" aria-labelledby="newsletter-heading">
@@ -268,16 +206,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-    </div>
-  );
-}
-
-function BlogCardGrid({ posts }: { posts: any[] }) {
-  return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {posts.map((post) => (
-        <BlogCard key={post.id} post={post} />
-      ))}
     </div>
   );
 }
