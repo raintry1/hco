@@ -1,12 +1,14 @@
 import { Metadata } from 'next';
 import { NovaChat } from '@/components/ai/nova-chat';
+import { requireUser } from '@/lib/require-user';
 
 export const metadata: Metadata = {
   title: 'Nova AI',
   description: 'Chat with Nova AI — cybersecurity help in Hinglish, Hindi or English.',
 };
 
-export default function NovaAIPage() {
+export default async function NovaAIPage() {
+  await requireUser('/ai');
   return (
     <div className="min-h-screen py-10 lg:py-14">
       <div className="container-narrow">

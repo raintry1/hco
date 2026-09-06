@@ -14,6 +14,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { getInitials, formatDate } from '@/lib/utils';
 import { siteConfig } from '@/lib/site-config';
+import { requireUser } from '@/lib/require-user';
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
@@ -63,6 +64,7 @@ export async function generateStaticParams() {
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
+  await requireUser(`/blog/${slug}`);
   const post = await getPostBySlug(slug);
 
   if (!post) {

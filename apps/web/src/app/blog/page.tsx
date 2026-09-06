@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { BookOpen, Flame, TrendingUp } from 'lucide-react';
 import { getFeaturedPosts, getLatestPosts, getTrendingPosts, getCategories } from '@/lib/api';
+import { requireUser } from '@/lib/require-user';
 import { BlogCard, FeaturedPostCard } from '@/components/cards/blog-card';
 import { CategoryCard } from '@/components/cards/category-card';
 
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogPage() {
+  await requireUser('/blog');
   const featuredPosts = await getFeaturedPosts();
   const latestPosts = await getLatestPosts(9);
   const trendingPosts = (await getTrendingPosts()).slice(0, 5);

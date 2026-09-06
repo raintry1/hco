@@ -27,6 +27,7 @@ function GoogleIcon() {
 export function LoginForm() {
   const searchParams = useSearchParams();
   const errorParam = searchParams.get('error');
+  const nextParam = searchParams.get('next');
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -37,10 +38,12 @@ export function LoginForm() {
 
     try {
       const supabase = createClient();
+      // After Google login, return to the page that required auth (if any).
+      const next = nextParam && nextParam.startsWith('/') ? nextParam : null;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/auth/callback${next ? `?next=${encodeURIComponent(next)}` : ''}`,
         },
       });
 

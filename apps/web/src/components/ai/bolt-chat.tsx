@@ -30,7 +30,7 @@ let nextId = 1;
 
 export function BoltChat() {
   const [msgs, setMsgs] = useState<Msg[]>([
-    { id: 0, who: 'bot', text: "Yo! I'm Bolt ⚡ video tutorials chahiye? 'menu' likho aur bhej do." },
+    { id: 0, who: 'bot', text: "Hi! I'm Bolt. Want video tutorials? Type 'menu' and press send." },
   ]);
   const [input, setInput] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
