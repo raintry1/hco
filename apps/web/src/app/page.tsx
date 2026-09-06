@@ -77,13 +77,21 @@ export default async function HomePage() {
 
           {/* Visual Element */}
           <div className="mt-16 relative" aria-hidden="true">
-            <div className="aspect-video max-w-4xl mx-auto rounded-xl overflow-hidden border border-border bg-gradient-to-br from-purple-500/10 via-transparent to-purple-500/10">
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-500/20 via-transparent to-transparent" />
-              <div className="relative p-8 flex items-center justify-center">
-                <div className="text-center">
-                  <Code className="h-16 w-16 mx-auto mb-4 text-primary/50" />
-                  <p className="text-muted-foreground">Terminal simulation placeholder</p>
-                </div>
+            <div className="max-w-3xl mx-auto rounded-xl overflow-hidden border border-border bg-black/80 shadow-2xl shadow-purple-500/10">
+              <div className="flex items-center gap-2 px-4 py-3 border-b border-border/60 bg-card/60">
+                <span className="h-3 w-3 rounded-full bg-red-500/80" />
+                <span className="h-3 w-3 rounded-full bg-yellow-500/80" />
+                <span className="h-3 w-3 rounded-full bg-green-500/80" />
+                <span className="ml-2 text-xs text-muted-foreground font-mono">hacker@hco: ~</span>
+              </div>
+              <div className="relative p-6 sm:p-8 font-mono text-left text-xs sm:text-sm leading-7">
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-500/20 via-transparent to-transparent pointer-events-none" />
+                <p className="relative"><span className="text-purple-400">hacker@hco</span><span className="text-muted-foreground">:~$ </span><span className="text-foreground">nmap -sV target.local</span></p>
+                <p className="relative text-green-400/90">80/tcp open http &nbsp; 443/tcp open https</p>
+                <p className="relative"><span className="text-purple-400">hacker@hco</span><span className="text-muted-foreground">:~$ </span><span className="text-foreground">sqlmap --crawl target.local</span></p>
+                <p className="relative text-yellow-400/90">[!] parameter &apos;id&apos; looks injectable</p>
+                <p className="relative"><span className="text-purple-400">hacker@hco</span><span className="text-muted-foreground">:~$ </span><span className="text-foreground">whoami</span></p>
+                <p className="relative text-green-400/90">root access: knowledge<span className="inline-block w-2 h-4 ml-1 align-middle bg-green-400 animate-pulse" /></p>
               </div>
             </div>
           </div>
@@ -203,7 +211,7 @@ export default async function HomePage() {
                 <p className="text-muted-foreground text-lg mb-8">
                   Get curated articles, vulnerability writeups, and career advice delivered to your inbox every week. No spam, unsubscribe anytime.
                 </p>
-                <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" action="/newsletter" method="POST">
+                <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" action="/newsletter" method="GET">
                   <label htmlFor="email" className="sr-only">Email address</label>
                   <input
                     type="email"

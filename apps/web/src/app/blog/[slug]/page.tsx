@@ -7,7 +7,7 @@ import { getPostBySlug, getRelatedPosts, getPosts } from '@/lib/api';
 import { ArticleContent } from '@/components/blog/article-content';
 import { PostViewCounter } from '@/components/blog/post-view-counter';
 import { ShareButtons } from '@/components/blog/share-buttons';
-import { Button } from '@/components/ui/button';
+import { CommentsSection } from '@/components/blog/comments-section';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
@@ -299,24 +299,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               </section>
             )}
 
-            {/* Comments Placeholder */}
-            <section className="mt-16" aria-labelledby="comments-heading">
-              <h2 id="comments-heading" className="text-2xl font-bold mb-6">Comments</h2>
-              <Card>
-                <CardContent className="p-8 text-center">
-                  <svg className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                  </svg>
-                  <h3 className="text-lg font-semibold mb-2">Comments coming soon</h3>
-                  <p className="text-muted-foreground mb-4">
-                    We&apos;re building a commenting system. Check back later!
-                  </p>
-                  <Button variant="outline" disabled>
-                    Sign in to comment
-                  </Button>
-                </CardContent>
-              </Card>
-            </section>
+            {/* Comments */}
+            <CommentsSection postSlug={post.slug} />
           </div>
 
           {/* Sidebar */}

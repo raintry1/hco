@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { siteConfig } from '@/lib/site-config';
-import { Twitter, Github, MessageCircle, Mail } from 'lucide-react';
+import { Twitter, Github, MessageCircle, Mail, Facebook } from 'lucide-react';
 
-type FooterLink = { label: string; href: string; external?: boolean };
+type FooterLink = { label: string; href?: string; external?: boolean };
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -16,15 +16,16 @@ export function Footer() {
     ],
     Community: [
       { label: 'Discord', href: siteConfig.links.discord, external: true },
-      { label: 'Twitter', href: siteConfig.links.twitter, external: true },
+      { label: 'X (Twitter)', href: siteConfig.links.twitter, external: true },
       { label: 'GitHub', href: siteConfig.links.github, external: true },
+      { label: 'Facebook', href: siteConfig.links.facebook, external: true },
       { label: 'Newsletter', href: '/newsletter' },
     ],
     Resources: [
-      { label: 'Write for Us', href: '/write' },
-      { label: 'Style Guide', href: '/style-guide' },
-      { label: 'API Docs', href: '/api-docs' },
-      { label: 'Status', href: '/status' },
+      { label: 'Write for Us' },
+      { label: 'Style Guide' },
+      { label: 'API Docs' },
+      { label: 'Status' },
     ],
     Legal: [
       { label: 'Privacy Policy', href: '/privacy' },
@@ -35,10 +36,11 @@ export function Footer() {
   };
 
   const socialLinks = [
-    { icon: Twitter, href: siteConfig.links.twitter, label: 'Twitter', external: true },
+    { icon: Twitter, href: siteConfig.links.twitter, label: 'X (Twitter)', external: true },
     { icon: Github, href: siteConfig.links.github, label: 'GitHub', external: true },
     { icon: MessageCircle, href: siteConfig.links.discord, label: 'Discord', external: true },
-    { icon: Mail, href: 'mailto:hello@hco.dev', label: 'Email', external: true },
+    { icon: Facebook, href: siteConfig.links.facebook, label: 'Facebook', external: true },
+    { icon: Mail, href: siteConfig.links.email, label: 'Email', external: true },
   ];
 
   return (
@@ -75,15 +77,21 @@ export function Footer() {
               <h3 className="font-semibold mb-4">{category}</h3>
               <ul className="space-y-3" role="list">
                 {links.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                      target={link.external ? '_blank' : undefined}
-                      rel={link.external ? 'noopener noreferrer' : undefined}
-                    >
-                      {link.label}
-                    </Link>
+                  <li key={link.label}>
+                    {link.href ? (
+                      <Link
+                        href={link.href}
+                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                        target={link.external ? '_blank' : undefined}
+                        rel={link.external ? 'noopener noreferrer' : undefined}
+                      >
+                        {link.label}
+                      </Link>
+                    ) : (
+                      <span className="text-sm text-muted-foreground/60 cursor-default">
+                        {link.label}
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>

@@ -11,11 +11,13 @@ export const siteConfig = {
   description: 'Learn. Hack. Build. Grow Together. A community-driven platform for developers and cybersecurity enthusiasts.',
   url: siteUrl,
   ogImage: '/og-image.png',
-  twitterHandle: '@hackerscolony',
+  twitterHandle: '@Hackers_Colony',
   links: {
-    twitter: 'https://twitter.com/hackerscolony',
-    github: 'https://github.com/hackerscolony',
-    discord: 'https://discord.gg/hackerscolony',
+    twitter: 'https://x.com/Hackers_Colony',
+    github: 'https://github.com/Hackerscolonyofficial',
+    discord: 'https://discord.gg/UrtsdYRP2',
+    facebook: 'https://www.facebook.com/share/1YUtNK5PX2/',
+    email: 'mailto:hackerscolonynew@gmail.com',
   },
   navItems: [
     { label: 'Home', href: '/' },
